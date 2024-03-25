@@ -14,34 +14,51 @@
   "contributes": {
     "commands": [
       {
-        "command": "devscribe.activate-llm",
-        "title": "Activate LLM"
+        "command": "vstodo.helloWorld",
+        "category": "Category",
+        "title": "Hello World"
+      },
+      {
+        "command": "vstodo.askQuestion",
+        "category": "Category",
+        "title": "Ask a question"
       }
     ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",
     "compile": "webpack",
-    "watch": "webpack --watch",
+    "watch": "concurrently \"rollup -c -w --bundleConfigAsCjs\" \"webpack --watch\"",
     "package": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "dev": "rollup -c -w"
   },
   "devDependencies": {
-    "@types/vscode": "^1.87.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@tsconfig/svelte": "^5.0.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.87.0",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.90.3",
-    "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.6",
-    "@vscode/test-electron": "^2.3.9"
-  }
+    "@vscode/test-electron": "^2.3.9",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "rollup": "^4.13.0",
+    "rollup-plugin-svelte": "^7.2.0",
+    "svelte": "^4.2.12",
+    "svelte-check": "^3.6.8",
+    "svelte-preprocess": "^5.1.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {}
 }
