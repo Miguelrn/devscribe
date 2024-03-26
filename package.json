@@ -9,9 +9,31 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:refresh"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vstodo-sidebar-view",
+          "title": "VSTodo",
+          "icon": "media/copilot.svg"
+        }
+      ]
+    },
+    "views": {
+      "vstodo-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "vstodo-sidebar",
+          "name": "VSTODO",
+          "icon": "media/copilot.svg",
+          "contextualTitle": "VSTODO"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "vstodo.helloWorld",
@@ -22,6 +44,11 @@
         "command": "vstodo.askQuestion",
         "category": "Category",
         "title": "Ask a question"
+      },
+      {
+        "command": "vstodo.refresh",
+        "category": "Category",
+        "title": "Refresh web view"
       }
     ]
   },
@@ -35,11 +62,13 @@
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
-    "dev": "rollup -c -w"
+    "dev": "rollup -c -w --bundleConfigAsCjs"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@tsconfig/svelte": "^5.0.3",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
