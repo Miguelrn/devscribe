@@ -5,6 +5,11 @@ import { SidebarProvider } from './SidebarProvider';
 export function activate(context: vscode.ExtensionContext) {
 
 	const sidebarProvider = new SidebarProvider(context.extensionUri);
+	const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+	item.text = '$(copilot) Add Todo';
+	item.command = 'vstodo.addTodo';
+	item.show();
+
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
 			"vstodo-sidebar",
@@ -12,19 +17,40 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
+	// context.subscriptions.push(
+	// 	vscode.commands.registerCommand('vstodo.helloWorld', () => {
+	// 		HelloWorldPanel.createOrShow(context.extensionUri);
+	// 	})
+	// );
+
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vstodo.helloWorld', () => {
-			HelloWorldPanel.createOrShow(context.extensionUri);
+		vscode.commands.registerCommand('vstodo.addTodo', () => {
+			const {activeTextEditor} = vscode.window;
+
+			if(!activeTextEditor){
+				vscode.window.showInformationMessage("no active selection");
+				return;
+			}
+
+			const text = activeTextEditor.document.getText(activeTextEditor.selection);
+			// vscode.window.showInformationMessage("text: " + text);
+
+			sidebarProvider._view?.webview.postMessage({
+				type: 'new-todo',
+				value: text
+			});
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vstodo.refresh', () => {
-			HelloWorldPanel.kill();
-			HelloWorldPanel.createOrShow(context.extensionUri);
-			setTimeout(() => {// opens dev tools to inspect / debug :D
-				vscode.commands.executeCommand("workbench.action.webview.openDeveloperTools");
-			}, 500);
+		vscode.commands.registerCommand('vstodo.refresh', async () => {
+			// HelloWorldPanel.kill();
+			// HelloWorldPanel.createOrShow(context.extensionUri);
+			await vscode.commands.executeCommand("workbench.action.closeSidebar");
+			await vscode.commands.executeCommand("workbench.view.extension.vstodo-sidebar-view");
+			// setTimeout(() => {// opens dev tools to inspect / debug :D
+			// 	vscode.commands.executeCommand("workbench.action.webview.openDeveloperTools");
+			// }, 500);
 		})
 	);
 
