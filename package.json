@@ -1,7 +1,7 @@
 {
   "name": "llm-helper",
   "displayName": "llm-helper",
-  "description": "description todo",
+  "description": "copilot for developers based on open source LLMs",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.88.0"
@@ -12,6 +12,25 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "llm-chat-lateral-view",
+          "title": "Chat Helper",
+          "icon": "media/copilot.svg"
+        }
+      ]
+    },
+    "views": {
+      "llm-chat-lateral-view": [
+        {
+          "type": "webview",
+          "id": "llm-chat-lateral-view",
+          "name": "Chat Helper",
+          "icon": "media/copilot.svg"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "llm.chat",
