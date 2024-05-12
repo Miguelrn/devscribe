@@ -12,5 +12,6 @@
     "typescript.tsc.autoDetect": "off",
     "files.associations": {
         "*.css": "tailwindcss"
-    }
+    },
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
