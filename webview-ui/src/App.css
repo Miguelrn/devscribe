@@ -1,0 +1,26 @@
+.user {
+    background-color: #1F2937;
+    color: #93C5FD;
+    border: 2px solid #0d47a1; 
+    padding: 16px
+}
+
+.ia {
+        background-color: #81c784;
+        color: #388e3c;
+        border: 2px solid #388e3c;
+        padding: 16px
+}
+
+[contentEditable]:empty:not(:focus):before {
+    content: attr(data-text)
+}
+[contentEditable]:empty:focus:before {
+    content: ''
+}
+[contentEditable]:focus-visible {
+    outline: none;
+}
+.icon-fill {
+    fill: #0d47a1
+}

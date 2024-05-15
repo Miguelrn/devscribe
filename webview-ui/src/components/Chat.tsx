@@ -1,4 +1,4 @@
-import { IconButton, InputAdornment, OutlinedInput, Paper } from '@mui/material';
+import { Paper } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import { useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
@@ -15,34 +15,30 @@ export default function Chat() {
 
     return (
         <Grid container>
-        <Grid container spacing={1} className="h-[calc(100vh-5rem)] overflow-auto">
-            {   
-                msg.map((m, index) => (
-                    <Grid xs={12} key={index}>
-                        <Paper variant={m.variant}>{m.msg}</Paper>
-                    </Grid>
-                ))
-            }
-        </Grid>
-        <Grid container className={'absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-[75vw]'}>
-            <OutlinedInput 
-                label="Message to LLM-Helper"  
-                fullWidth={true}
-                maxRows={2} 
-                multiline={true}
-                endAdornment={
-                    <InputAdornment position="end">
-                        <IconButton
-                        aria-label="Send msg"
-                        onClick={()=>{}}
-                        edge="end"
-                        >
-                        <SendIcon />
-                        </IconButton>
-                    </InputAdornment>
+            <Grid container className="h-[calc(100vh-6rem)] overflow-auto grid gap-4">
+                {   
+                    msg.map((m, index) => (
+                        <Grid xs={12} key={index}>
+                            <Paper className={`rounded ${m.variant}`}>{m.msg}</Paper>
+                        </Grid>
+                    ))
                 }
-            />
-        </Grid>
+            </Grid>
+            <Grid container className={'absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-[75vw]'}>
+                <Paper className={`m-2 rounded user`}>
+                    <div className={'flex space-between'}>
+                        
+                        <div contentEditable data-text="LLM-Helper" className='w-full max-h-10 overflow-auto'></div>
+                    
+
+                        <SendIcon className='cursor-pointer w-8 h-8 icon-fill'/>
+                    
+                    </div>
+                    
+                        
+                </Paper>
+                
+            </Grid>
         </Grid>
     )
 }
