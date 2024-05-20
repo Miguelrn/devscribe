@@ -1,4 +1,5 @@
 {
+  "license": "MIT",
   "name": "webview-ui",
   "private": true,
   "version": "0.0.0",
@@ -15,12 +16,14 @@
     "@fontsource/roboto": "^5.0.13",
     "@mui/icons-material": "^5.15.17",
     "@mui/material": "^5.15.16",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@types/vscode-webview": "^1.57.5",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",

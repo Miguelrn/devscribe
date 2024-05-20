@@ -3,7 +3,9 @@ import { CancellationToken, TextDocument, Uri, Webview, WebviewView, WebviewView
 
 export class ChatLateralPanel implements WebviewViewProvider {
 
+    public static readonly viewType = 'llm-chat-lateral-view';
     _view?: WebviewView;
+    private _isFocused: boolean = false;
     // _doc?: TextDocument;
   
     constructor(private readonly _extensionUri: Uri) {}
@@ -20,7 +22,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        webviewView.webview.onDidReceiveMessage(async (data) => {
+        webviewView.webview.onDidReceiveMessage(async (data: {type: string, value: string}) => {
             switch (data.type) {
                 case "onInfo": 
                     if (!data.value) {
@@ -35,7 +37,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
                     window.showErrorMessage(data.value);
                     break;
                 
-                case "new-todo": 
+                case "explain": 
                     console.log({data});
                     if (!data.value) {
                         return;
@@ -45,11 +47,25 @@ export class ChatLateralPanel implements WebviewViewProvider {
                 
             }
         });
+
+        webviewView.onDidChangeVisibility(() => {
+            this._isFocused = webviewView.visible;
+        });
     }
 
     revive(panel: WebviewView) {
         this._view = panel;
     }
+
+    isFocused(): boolean {
+        return this._isFocused;
+    }
+    sendDataToWebview(data: {type: string, value: string, language: string}) {
+        if (this._view) {
+            this._view.webview.postMessage(data);
+        }
+    }
+
 
     private _getHtmlForWebview(webview: Webview) {
         // The CSS file from the React build output
@@ -73,6 +89,15 @@ export class ChatLateralPanel implements WebviewViewProvider {
                 <meta http-equiv="Content-Security-Policy" content=" style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
                 <link rel="stylesheet" type="text/css" href="${stylesUri}">
                 <title>Hello World</title>
+                <script>
+                    const vscode = acquireVsCodeApi();
+                    window.addEventListener('message', event => {
+                        const message = event.data;
+                        if (window.handleVsCodeMessage) {
+                            window.handleVsCodeMessage(message);
+                        }
+                    });
+                </script>
             </head>
             <body>
                 <div id="root"></div>
