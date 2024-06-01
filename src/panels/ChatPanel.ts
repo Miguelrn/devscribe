@@ -53,7 +53,7 @@ export class ChatPanel {
         // Panel view type
         "showHelloWorld",
         // Panel title
-        "Using Chat CodeLLama",
+        "Using Chat CodeGemma",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -116,8 +116,8 @@ export class ChatPanel {
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content=" style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />         
+          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <title>Hello World</title>
         </head>
@@ -139,7 +139,7 @@ export class ChatPanel {
   private _setWebviewMessageListener(webview: Webview) {
     webview.onDidReceiveMessage(
       (message: any) => {
-        const command = message.command;
+        const command = message.type;
         const text = message.text;
 
         switch (command) {

@@ -1,5 +1,5 @@
 import { getNonce } from "../getNonce";
-import { CancellationToken, TextDocument, Uri, Webview, WebviewView, WebviewViewProvider, WebviewViewResolveContext, window } from "vscode";
+import { CancellationToken, commands, TextDocument, Uri, Webview, WebviewView, WebviewViewProvider, WebviewViewResolveContext, window, workspace } from "vscode";
 
 export class ChatLateralPanel implements WebviewViewProvider {
 
@@ -10,13 +10,11 @@ export class ChatLateralPanel implements WebviewViewProvider {
   
     constructor(private readonly _extensionUri: Uri) {}
 
-    resolveWebviewView(webviewView: WebviewView, context: WebviewViewResolveContext, token: CancellationToken): void | Thenable<void> {
+    resolveWebviewView(webviewView: WebviewView): void | Thenable<void> {
         this._view = webviewView;
 
         webviewView.webview.options = {
-            // Allow scripts in the webview
             enableScripts: true,
-
             localResourceRoots: [Uri.joinPath(this._extensionUri, "webview-ui", "build", "assets")],
         };
 
@@ -36,21 +34,21 @@ export class ChatLateralPanel implements WebviewViewProvider {
                     }
                     window.showErrorMessage(data.value);
                     break;
-                
                 case "explain": 
-                    console.log({data});
                     if (!data.value) {
                         return;
                     }
                     window.showErrorMessage(data.value);
                     break;
-                
             }
         });
-
+        
         webviewView.onDidChangeVisibility(() => {
+            console.log('change visibility');
             this._isFocused = webviewView.visible;
         });
+
+        this._isFocused = true;
     }
 
     revive(panel: WebviewView) {
@@ -60,12 +58,19 @@ export class ChatLateralPanel implements WebviewViewProvider {
     isFocused(): boolean {
         return this._isFocused;
     }
-    sendDataToWebview(data: {type: string, value: string, language: string}) {
-        if (this._view) {
-            this._view.webview.postMessage(data);
-        }
-    }
 
+    public sendDataToWebview(data: {type: string, value: string, language: string}) {
+		if (this._view) {
+			this._view.show?.(true); 
+			this._view.webview.postMessage(data);
+		}
+	}
+
+	public clearColors() {
+		if (this._view) {
+			this._view.webview.postMessage({ type: 'clearColors' });
+		}
+	}
 
     private _getHtmlForWebview(webview: Webview) {
         // The CSS file from the React build output
@@ -86,18 +91,9 @@ export class ChatLateralPanel implements WebviewViewProvider {
             <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <meta http-equiv="Content-Security-Policy" content=" style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
                 <link rel="stylesheet" type="text/css" href="${stylesUri}">
                 <title>Hello World</title>
-                <script>
-                    const vscode = acquireVsCodeApi();
-                    window.addEventListener('message', event => {
-                        const message = event.data;
-                        if (window.handleVsCodeMessage) {
-                            window.handleVsCodeMessage(message);
-                        }
-                    });
-                </script>
             </head>
             <body>
                 <div id="root"></div>

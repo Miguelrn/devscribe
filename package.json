@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:plaintext"
+    "onStartupFinished"    
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -20,6 +20,7 @@
           "id": "llm-chat-lateral-view",
           "title": "Chat Helper",
           "icon": "media/copilot.svg"
+
         }
       ]
     },
@@ -43,6 +44,10 @@
         "command": "llm.showContextMenu",
         "title": "Show Context Menu",
         "category": "Helper"
+      },
+      {
+        "command": "extension.openChatLateralPanel",
+        "title": "Open Chat Lateral Panel"
       }
 
 
