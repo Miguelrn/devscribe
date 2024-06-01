@@ -1,6 +1,7 @@
 import { commands, DecorationOptions, ExtensionContext, MarkdownString, Range, TextEditorDecorationType, TextEditorSelectionChangeEvent, Uri, window } from 'vscode';
 import { ChatLateralPanel } from './panels/ChatLateralPanel';
 import path from 'path';
+import { ApiResponse } from './utils/types';
 
 let decorationType: TextEditorDecorationType | undefined;
 let chatLateralPanel: ChatLateralPanel;
@@ -38,7 +39,8 @@ export function activate(context: ExtensionContext) {
 			else {
 				sendMsg(text);
 			}
-			
+			// send question to llm 
+			queryLlm(text);
 		})
 	);
 	
@@ -106,4 +108,35 @@ const sendMsg = (text: string) => {
 		value: text,
 		language: window.activeTextEditor?.document.languageId || 'plain' // TODO whats the name of no language?
 	});
+};
+
+const queryLlm = async (text: string) => {
+	const endpoint = 'http://localhost:11434/api/generate';
+    const body = {
+        model: 'codegemma',
+        prompt: `explain the following code: \n ${text}`,
+		stream: false
+    };
+
+	const response = await fetch(endpoint, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'text/plain'
+		},
+		body: JSON.stringify(body)
+	});
+
+	if (!response.ok) {
+		throw new Error(`Error: ${response.status} ${response.statusText}`);
+	}
+
+	const result: ApiResponse = await response.json() as ApiResponse;
+	
+	if(result.response)	{
+		chatLateralPanel.sendDataToWebview({
+			type: 'response',
+			value: result.response,
+			language: 'plain' // TODO whats the name of no language?
+		});
+	}
 };

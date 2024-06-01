@@ -1,5 +1,5 @@
 import { getNonce } from "../getNonce";
-import { CancellationToken, commands, TextDocument, Uri, Webview, WebviewView, WebviewViewProvider, WebviewViewResolveContext, window, workspace } from "vscode";
+import { Uri, Webview, WebviewView, WebviewViewProvider, window } from "vscode";
 
 export class ChatLateralPanel implements WebviewViewProvider {
 
@@ -44,7 +44,6 @@ export class ChatLateralPanel implements WebviewViewProvider {
         });
         
         webviewView.onDidChangeVisibility(() => {
-            console.log('change visibility');
             this._isFocused = webviewView.visible;
         });
 

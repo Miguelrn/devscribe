@@ -90,7 +90,7 @@ export default function Chat() {
                                                     style={dark}
                                                 />
                                             ) : (
-                                                <code {...rest} className={className}>
+                                                <code {...rest} className={'inline-code'}>
                                                     {children}
                                                 </code>
                                             )
