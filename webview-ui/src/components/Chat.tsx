@@ -10,6 +10,7 @@ import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import { vscode } from '../utilities/vscode';
 
 
 const icons = [
@@ -23,34 +24,44 @@ export default function Chat() {
     const [msgList, setMsgList] = useState<{variant: 'ia' | 'user', msg: string}[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [currentIconIndex, setCurrentIconIndex] = useState(0);
+    const [input, setInput] = useState<string>('');
 
+    const printMsg = (data: {type: string, value: string, language: string}) => {
+        switch (data.type) {
+            case 'explain': {
+                const variant: 'ia' | 'user' = 'user';
+                const newMsg: string = "Explain:\n```" + data.language + "\n" + data.value + "\n```"
+                setMsgList((prevItems) => [...prevItems, {variant, msg: newMsg}]);
+                setIsLoading(true);
+                break;
+            }
+            case 'response': {
+                const variant: 'ia' | 'user' = 'ia';
+                const response: string  = data.value; 
+                setMsgList((prevItems) => [...prevItems, {variant, msg: response}]);
+                setIsLoading(false);
+                break;          
+            }
+            case 'user': {
+                const variant: 'ia' | 'user' = 'user';
+                const newMsg: string = data.value
+                setMsgList((prevItems) => [...prevItems, {variant, msg: newMsg}]);
+                setIsLoading(true);
+                break;
+            }
+        }
+    }
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             const data: {type: string, value: string, language: string} = event.data;
-    
-            switch (data.type) {
-                case 'explain': {
-                    const variant: 'ia' | 'user' = 'user';
-                    const newMsg: string = "Explain:\n```" + data.language + "\n" + data.value + "\n```"
-                    setMsgList((prevItems) => [...prevItems, {variant, msg: newMsg}]);
-                    setIsLoading(true);
-                    break;
-                }
-                case 'response': {
-                    const variant: 'ia' | 'user' = 'ia';
-                    const response: string  = data.value; 
-                    setMsgList((prevItems) => [...prevItems, {variant, msg: response}]);
-                    setIsLoading(false);
-                    break;          
-                }
-            }
+            printMsg(data);
         };
     
         window.addEventListener('message', handleMessage);
 
-        return () => {
-            window.removeEventListener('message', handleMessage);
-        };
+        // return () => {
+        //     window.removeEventListener('message', handleMessage);
+        // };
     }, []);
 
     useEffect(() => {
@@ -66,7 +77,23 @@ export default function Chat() {
             clearInterval(interval);
           }
         };
-      }, [isLoading]);
+    }, [isLoading]);
+
+    const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
+        const target = event.currentTarget as HTMLElement;
+        setInput(target.innerText);
+    };
+
+    const sendMsg = () => {
+        const question = input;
+        setInput('');
+        
+        printMsg({type: 'explain', value: question, language: 'plain'});
+        vscode.postMessage({
+            type: "userComment",
+            value: input
+        });
+    }
 
     return (
         <>
@@ -107,11 +134,11 @@ export default function Chat() {
                 <Paper className={`m-2 rounded user`}>
                     <div className={'flex space-between'}>
                         
-                        <div contentEditable data-text="LLM-Helper" className='w-full max-h-10 overflow-auto'></div>
+                        <div contentEditable data-text="LLM-Helper" className='w-full max-h-10 overflow-auto' onInput={handleInput}></div>
                     
 
                         {!isLoading ? 
-                        <SendIcon className='cursor-pointer w-8 h-8 icon-fill'/> : 
+                        <SendIcon className='cursor-pointer w-8 h-8 icon-fill' onClick={sendMsg}/> : 
                         icons[currentIconIndex]}
                     
                     </div>

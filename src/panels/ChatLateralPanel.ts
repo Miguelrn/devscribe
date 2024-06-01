@@ -1,5 +1,6 @@
 import { getNonce } from "../getNonce";
 import { Uri, Webview, WebviewView, WebviewViewProvider, window } from "vscode";
+import { ApiResponse } from "../utils/types";
 
 export class ChatLateralPanel implements WebviewViewProvider {
 
@@ -34,11 +35,11 @@ export class ChatLateralPanel implements WebviewViewProvider {
                     }
                     window.showErrorMessage(data.value);
                     break;
-                case "explain": 
+                case "userComment": 
                     if (!data.value) {
                         return;
                     }
-                    window.showErrorMessage(data.value);
+                    await this.queryLlm(data.value);
                     break;
             }
         });
@@ -62,6 +63,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
 		if (this._view) {
 			this._view.show?.(true); 
 			this._view.webview.postMessage(data);
+            this.queryLlm(data.value);
 		}
 	}
 
@@ -102,4 +104,34 @@ export class ChatLateralPanel implements WebviewViewProvider {
         `;
     }
 
+    private async queryLlm(text: string) {
+        const endpoint = 'http://localhost:11434/api/generate';
+        const body = {
+            model: 'codegemma',
+            prompt: `Explain the following code: \n ${text}`,
+            stream: false,
+            options: {
+                context: '' // TODO fill
+            }
+        };
+    
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: JSON.stringify(body)
+        });
+    
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+    
+        const result: ApiResponse = await response.json() as ApiResponse;
+        
+        if(result.response)	{
+            console.log('query finished');
+            this._view?.webview.postMessage({type: 'response', value: result.response, language: 'plain'});
+        }
+    };
 }

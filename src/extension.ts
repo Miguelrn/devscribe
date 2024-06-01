@@ -39,8 +39,6 @@ export function activate(context: ExtensionContext) {
 			else {
 				sendMsg(text);
 			}
-			// send question to llm 
-			queryLlm(text);
 		})
 	);
 	
@@ -110,33 +108,3 @@ const sendMsg = (text: string) => {
 	});
 };
 
-const queryLlm = async (text: string) => {
-	const endpoint = 'http://localhost:11434/api/generate';
-    const body = {
-        model: 'codegemma',
-        prompt: `explain the following code: \n ${text}`,
-		stream: false
-    };
-
-	const response = await fetch(endpoint, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'text/plain'
-		},
-		body: JSON.stringify(body)
-	});
-
-	if (!response.ok) {
-		throw new Error(`Error: ${response.status} ${response.statusText}`);
-	}
-
-	const result: ApiResponse = await response.json() as ApiResponse;
-	
-	if(result.response)	{
-		chatLateralPanel.sendDataToWebview({
-			type: 'response',
-			value: result.response,
-			language: 'plain' // TODO whats the name of no language?
-		});
-	}
-};
