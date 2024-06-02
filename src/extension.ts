@@ -101,10 +101,10 @@ const getSelection = (event: TextEditorSelectionChangeEvent, context: ExtensionC
 };
 
 const sendMsg = (text: string) => {
+	const language = window.activeTextEditor?.document.languageId || 'plain';
 	chatLateralPanel.sendDataToWebview({
-		type: 'explain',
-		value: text,
-		language: window.activeTextEditor?.document.languageId || 'plain' // TODO whats the name of no language?
+		role: 'user',
+		content: "Explain:\n```" + language + "\n" + text + "\n```"
 	});
 };
 

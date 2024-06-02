@@ -26,25 +26,18 @@ export default function Chat() {
     const [currentIconIndex, setCurrentIconIndex] = useState(0);
     const [input, setInput] = useState<string>('');
 
-    const printMsg = (data: {type: string, value: string, language: string}) => {
-        switch (data.type) {
-            case 'explain': {
-                const variant: 'ia' | 'user' = 'user';
-                const newMsg: string = "Explain:\n```" + data.language + "\n" + data.value + "\n```"
-                setMsgList((prevItems) => [...prevItems, {variant, msg: newMsg}]);
-                setIsLoading(true);
-                break;
-            }
-            case 'response': {
+    const printMsg = (data: {role: string, content: string}) => {
+        switch (data.role) {
+            case 'assistant': {
                 const variant: 'ia' | 'user' = 'ia';
-                const response: string  = data.value; 
+                const response: string  = data.content; 
                 setMsgList((prevItems) => [...prevItems, {variant, msg: response}]);
                 setIsLoading(false);
                 break;          
             }
             case 'user': {
                 const variant: 'ia' | 'user' = 'user';
-                const newMsg: string = data.value
+                const newMsg: string = data.content
                 setMsgList((prevItems) => [...prevItems, {variant, msg: newMsg}]);
                 setIsLoading(true);
                 break;
@@ -53,7 +46,7 @@ export default function Chat() {
     }
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            const data: {type: string, value: string, language: string} = event.data;
+            const data: {role: string, content: string} = event.data;
             printMsg(data);
         };
     
@@ -88,10 +81,10 @@ export default function Chat() {
         const question = input;
         setInput('');
         
-        printMsg({type: 'explain', value: question, language: 'plain'});
+        printMsg({role: 'user', content: question});
         vscode.postMessage({
-            type: "userComment",
-            value: input
+            role: "user",
+            content: input
         });
     }
 

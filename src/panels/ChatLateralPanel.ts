@@ -7,7 +7,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
     public static readonly viewType = 'llm-chat-lateral-view';
     _view?: WebviewView;
     private _isFocused: boolean = false;
-    // _doc?: TextDocument;
+    private context: {role: string, content: string}[] = [];
   
     constructor(private readonly _extensionUri: Uri) {}
 
@@ -21,13 +21,14 @@ export class ChatLateralPanel implements WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        webviewView.webview.onDidReceiveMessage(async (data: {type: string, value: string}) => {
-            switch (data.type) {
+        //  wwebview to panel
+        webviewView.webview.onDidReceiveMessage(async (data: {role: string, content: string}) => {
+            switch (data.role) {
                 case "onInfo": 
-                    if (!data.value) {
+                    if (!data.content) {
                         return;
                     }
-                    window.showInformationMessage(data.value);
+                    window.showInformationMessage(data.content);
                     break;
                 case "onError": 
                     if (!data.value) {
@@ -35,11 +36,11 @@ export class ChatLateralPanel implements WebviewViewProvider {
                     }
                     window.showErrorMessage(data.value);
                     break;
-                case "userComment": 
-                    if (!data.value) {
+                case "user": 
+                    if (!data.content) {
                         return;
                     }
-                    await this.queryLlm(data.value);
+                    await this.queryLlm(data.content);
                     break;
             }
         });
@@ -59,17 +60,11 @@ export class ChatLateralPanel implements WebviewViewProvider {
         return this._isFocused;
     }
 
-    public sendDataToWebview(data: {type: string, value: string, language: string}) {
+    public sendDataToWebview(data: {role: string, content: string}) {
 		if (this._view) {
 			this._view.show?.(true); 
 			this._view.webview.postMessage(data);
-            this.queryLlm(data.value);
-		}
-	}
-
-	public clearColors() {
-		if (this._view) {
-			this._view.webview.postMessage({ type: 'clearColors' });
+            this.queryLlm(`Explain the following code: \n ${data.content}`);
 		}
 	}
 
@@ -104,34 +99,36 @@ export class ChatLateralPanel implements WebviewViewProvider {
         `;
     }
 
-    private async queryLlm(text: string) {
-        const endpoint = 'http://localhost:11434/api/generate';
+    private async queryLlm(prompt: string) {
+        const endpoint = 'http://localhost:11434/api/chat';
+        this.context.push({role: 'user', content: prompt});
         const body = {
             model: 'codegemma',
-            prompt: `Explain the following code: \n ${text}`,
             stream: false,
-            options: {
-                context: '' // TODO fill
-            }
+            keep_alive: '60m',
+            messages: this.context
         };
-    
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: JSON.stringify(body)
-        });
-    
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-    
-        const result: ApiResponse = await response.json() as ApiResponse;
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status} ${response.statusText}`);
+            }
         
-        if(result.response)	{
-            console.log('query finished');
-            this._view?.webview.postMessage({type: 'response', value: result.response, language: 'plain'});
+            const responseData: ApiResponse = await response.json() as ApiResponse;
+            const reply = responseData.message;
+
+            this.context.push(reply);
+            this._view?.webview.postMessage(reply);
+        } catch (error) {
+            console.error("Error making API call:", error);
+            return null;
         }
     };
 }

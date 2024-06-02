@@ -9,6 +9,9 @@ export interface ApiResponse {
     model: string;
     promp_eval_count: number;
     promp_eval_duration: number;
-    response: string;   
+    message: {
+        role: string;
+        content: string;
+    };   
     total_duration: number;
 }
