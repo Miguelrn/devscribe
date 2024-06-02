@@ -1,6 +1,6 @@
 import { Paper } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -72,9 +72,15 @@ export default function Chat() {
         };
     }, [isLoading]);
 
-    const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
-        const target = event.currentTarget as HTMLElement;
-        setInput(target.innerText);
+    const handleInput = (event: ChangeEvent<HTMLTextAreaElement>) => {
+        setInput(event.target.value || '');
+    };
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey && input !== '') {
+            event.preventDefault(); // Prevent default behavior (submitting form)
+            sendMsg();
+        } 
     };
 
     const sendMsg = () => {
@@ -94,18 +100,18 @@ export default function Chat() {
                 {   
                     msgList.map((m, index) => (
                         <Grid xs={12} key={index}>
-                            <Paper className={`rounded ${m.variant} my-2`}>
+                            <Paper className={`rounded ${m.variant} my-2 whitespace-pre-wrap`}>
                                 <ReactMarkdown 
                                     remarkPlugins={[remarkGfm]}
                                     children={m.msg}
+                                    
                                     components={{
-                                        code(props) {
-                                            const {children, className, ...rest} = props
-                                            const match = /language-(\w+)/.exec(className || '')
+                                        code({children, className, ...rest}) {
+                                            const match = /language-(\w+)/.exec(className || '') // review this, for llm whhat is returning and how cna we use it for syntax highlight
                                             return match ? (
                                                 <SyntaxHighlighter
                                                     PreTag="div"
-                                                    children={String(children).replace(/\n$/, '')}
+                                                    children={String(children).replace(/\n$/, '')} 
                                                     language={match[1]}
                                                     style={dark}
                                                 />
@@ -127,7 +133,22 @@ export default function Chat() {
                 <Paper className={`m-2 rounded user`}>
                     <div className={'flex space-between'}>
                         
-                        <div contentEditable data-text="LLM-Helper" className='w-full max-h-10 overflow-auto' onInput={handleInput}></div>
+                        {/* <div 
+                            contentEditable 
+                            data-text="LLM-Helper" 
+                            className='w-full max-h-10 overflow-auto' 
+                            onInput={handleInput} 
+                        >
+                           {input}
+                        </div> */}
+                        <textarea
+                            value={input}
+                            placeholder='LLM-Helper'
+                            onChange={handleInput}
+                            onKeyDown={handleKeyDown}
+                            rows={2} // Set the number of visible rows
+                            className='w-full max-h-20 overflow-auto resize-none focus:outline-none' // Adjust width and height as needed
+                        />
                     
 
                         {!isLoading ? 

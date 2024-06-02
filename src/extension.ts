@@ -1,7 +1,6 @@
 import { commands, DecorationOptions, ExtensionContext, MarkdownString, Range, TextEditorDecorationType, TextEditorSelectionChangeEvent, Uri, window } from 'vscode';
 import { ChatLateralPanel } from './panels/ChatLateralPanel';
 import path from 'path';
-import { ApiResponse } from './utils/types';
 
 let decorationType: TextEditorDecorationType | undefined;
 let chatLateralPanel: ChatLateralPanel;
@@ -28,6 +27,7 @@ export function activate(context: ExtensionContext) {
 
 			const text = activeTextEditor.document.getText(activeTextEditor.selection);
 			// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-view-sample/src/extension.ts
+			// https://github.com/microsoft/vscode-extension-samples/tree/main/helloworld-test-cli-sample
 			if(!chatLateralPanel.isFocused()){
 				// if the panel was not visible need to initialize wait a bit and then send msg (will recive nothing without this waiting)
 				commands.executeCommand('workbench.view.extension.llm-chat-lateral-view');

@@ -31,10 +31,10 @@ export class ChatLateralPanel implements WebviewViewProvider {
                     window.showInformationMessage(data.content);
                     break;
                 case "onError": 
-                    if (!data.value) {
+                    if (!data.content) {
                         return;
                     }
-                    window.showErrorMessage(data.value);
+                    window.showErrorMessage(data.content);
                     break;
                 case "user": 
                     if (!data.content) {
