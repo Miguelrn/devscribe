@@ -11,6 +11,8 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import { vscode } from '../utilities/vscode';
+import hljs from 'highlight.js';
+import FiberNewIcon from '@mui/icons-material/FiberNew';
 
 
 const icons = [
@@ -94,6 +96,10 @@ export default function Chat() {
         });
     }
 
+    const newChat = () => {
+        setMsgList([])
+    }
+
     return (
         <>
             <Grid container className="h-[calc(100vh-6rem)] overflow-auto" direction="column" justifyContent={"flex-start"} alignItems={"center"}>
@@ -108,13 +114,19 @@ export default function Chat() {
                                     components={{
                                         code({children, className, ...rest}) {
                                             const match = /language-(\w+)/.exec(className || '') // review this, for llm whhat is returning and how cna we use it for syntax highlight
+                                            const l =  hljs.getLanguage(String(children))
+                                            
                                             return match ? (
+                                                <>
+                                                <h3>{l?.name}</h3>
                                                 <SyntaxHighlighter
                                                     PreTag="div"
                                                     children={String(children).replace(/\n$/, '')} 
-                                                    language={match[1]}
+                                                    language={match[1] || l?.name}
                                                     style={dark}
-                                                />
+                                                    wrapLongLines
+                                                    />
+                                                </>
                                             ) : (
                                                 <code {...rest} className={'inline-code'}>
                                                     {children}
@@ -129,18 +141,12 @@ export default function Chat() {
                 }
             </Grid>
 
+            <FiberNewIcon fontSize='small' className='cursor-pointer w-12 icon-fill absolute bottom-5 left-5' onClick={newChat}></FiberNewIcon>
+            
             <Grid container className={'absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-[75vw]'}>
                 <Paper className={`m-2 rounded user`}>
                     <div className={'flex space-between'}>
                         
-                        {/* <div 
-                            contentEditable 
-                            data-text="LLM-Helper" 
-                            className='w-full max-h-10 overflow-auto' 
-                            onInput={handleInput} 
-                        >
-                           {input}
-                        </div> */}
                         <textarea
                             value={input}
                             placeholder='LLM-Helper'

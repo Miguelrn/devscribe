@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"    
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -20,7 +20,6 @@
           "id": "llm-chat-lateral-view",
           "title": "Chat Helper",
           "icon": "media/copilot.svg"
-
         }
       ]
     },
@@ -49,14 +48,8 @@
         "command": "extension.openChatLateralPanel",
         "title": "Open Chat Lateral Panel"
       }
-
-
-      
     ],
-
-    "menus": {
-
-		}
+    "menus": {}
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
@@ -80,6 +73,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "highlight.js": "^11.9.0",
     "react-markdown": "^9.0.1",
     "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^4.0.0"
