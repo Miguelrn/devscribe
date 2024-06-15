@@ -20,6 +20,9 @@ code.inline-code {
 .icon-fill {
     fill: #0d47a1
 }
+.icon-white {
+    fill: white
+}
 
 textarea {
     background-color: #1F2937;

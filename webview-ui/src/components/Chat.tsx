@@ -4,15 +4,14 @@ import { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
-import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
+
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import { vscode } from '../utilities/vscode';
-import hljs from 'highlight.js';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
+import { CodeBlock } from './CodeBlock';
 
 
 const icons = [
@@ -112,26 +111,8 @@ export default function Chat() {
                                     children={m.msg}
                                     
                                     components={{
-                                        code({children, className, ...rest}) {
-                                            const match = /language-(\w+)/.exec(className || '') // review this, for llm whhat is returning and how cna we use it for syntax highlight
-                                            const l =  hljs.getLanguage(String(children))
-                                            
-                                            return match ? (
-                                                <>
-                                                <h3>{l?.name}</h3>
-                                                <SyntaxHighlighter
-                                                    PreTag="div"
-                                                    children={String(children).replace(/\n$/, '')} 
-                                                    language={match[1] || l?.name}
-                                                    style={dark}
-                                                    wrapLongLines
-                                                    />
-                                                </>
-                                            ) : (
-                                                <code {...rest} className={'inline-code'}>
-                                                    {children}
-                                                </code>
-                                            )
+                                        code({children, className}) {
+                                            return <CodeBlock className={className || ''}>{String(children)}</CodeBlock>
                                         }
                                     }}
                                 ></ReactMarkdown>
