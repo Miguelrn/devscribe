@@ -6,6 +6,7 @@
 }
 
 .ia {
+    --vscode-textPreformat-foreground: white;
     background-color: #81c784;
     color: #388e3c;
     border: 2px solid #388e3c;

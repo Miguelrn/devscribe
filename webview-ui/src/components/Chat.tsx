@@ -27,13 +27,30 @@ export default function Chat() {
     const [currentIconIndex, setCurrentIconIndex] = useState(0);
     const [input, setInput] = useState<string>('');
 
-    const printMsg = (data: {role: string, content: string}) => {
+    const printMsg = (data: {role: string, content: string, done: boolean}) => {
         switch (data.role) {
             case 'assistant': {
                 const variant: 'ia' | 'user' = 'ia';
                 const response: string  = data.content; 
-                setMsgList((prevItems) => [...prevItems, {variant, msg: response}]);
-                setIsLoading(false);
+
+                if(!data.done)
+                    setMsgList((prevItems) => {
+                        const lastIndex = prevItems.length - 1;
+                        const newItems = [...prevItems];
+
+                        if (lastIndex >= 0 && newItems[lastIndex].variant === variant) {
+                            newItems[lastIndex] = {
+                                ...newItems[lastIndex],
+                                msg: (newItems[lastIndex].msg || '') + response
+                            };
+                        } else { // insert thhe first word in a new response
+                            newItems.push({ variant: 'ia', msg: response });
+                        }
+
+                        return newItems;
+                    });
+                else
+                    setIsLoading(false);
                 break;          
             }
             case 'user': {
@@ -47,7 +64,7 @@ export default function Chat() {
     }
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            const data: {role: string, content: string} = event.data;
+            const data: {role: string, content: string, done: boolean} = event.data;
             printMsg(data);
         };
     
@@ -88,7 +105,7 @@ export default function Chat() {
         const question = input;
         setInput('');
         
-        printMsg({role: 'user', content: question});
+        printMsg({role: 'user', content: question, done: true});
         vscode.postMessage({
             role: "user",
             content: input
@@ -111,8 +128,8 @@ export default function Chat() {
                                     children={m.msg}
                                     
                                     components={{
-                                        code({children, className}) {
-                                            return <CodeBlock className={className || ''}>{String(children)}</CodeBlock>
+                                        code({children, className, ...props}) {
+                                            return <CodeBlock className={className || ''} {...props}>{String(children)}</CodeBlock>
                                         }
                                     }}
                                 ></ReactMarkdown>

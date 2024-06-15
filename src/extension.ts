@@ -104,7 +104,8 @@ const sendMsg = (text: string) => {
 	const language = window.activeTextEditor?.document.languageId || 'plain';
 	chatLateralPanel.sendDataToWebview({
 		role: 'user',
-		content: "Explain:\n```" + language + "\n" + text + "\n```"
+		content: "Explain:\n```" + language + "\n" + text + "\n```",
+		done: true
 	});
 };
 

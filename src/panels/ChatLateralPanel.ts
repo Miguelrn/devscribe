@@ -60,7 +60,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
         return this._isFocused;
     }
 
-    public sendDataToWebview(data: {role: string, content: string}) {
+    public sendDataToWebview(data: {role: string, content: string, done: boolean}) {
 		if (this._view) {
 			this._view.show?.(true); 
 			this._view.webview.postMessage(data);
@@ -104,7 +104,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
         this.context.push({role: 'user', content: prompt});
         const body = {
             model: 'codegemma',
-            stream: false,
+            stream: true,
             keep_alive: '60m',
             messages: this.context
         };
@@ -120,12 +120,27 @@ export class ChatLateralPanel implements WebviewViewProvider {
             if (!response.ok) {
                 throw new Error(`Error: ${response.status} ${response.statusText}`);
             }
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            const reply = { role: 'assistant', content: '', done: false};
+
+            while (reader) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    this._view?.webview.postMessage({role: 'assistant', content: '', done});
+                    break;
+                }
         
-            const responseData: ApiResponse = await response.json() as ApiResponse;
-            const reply = responseData.message;
+                // Decode the chunk and process it
+                const chunk = decoder.decode(value, { stream: true });
+                const msg = JSON.parse(chunk).message;
+                this._view?.webview.postMessage({...msg, done});
+
+                reply.content += msg.content;
+                reply.done = done;
+            }
 
             this.context.push(reply);
-            this._view?.webview.postMessage(reply);
         } catch (error) {
             console.error("Error making API call:", error);
             return null;
