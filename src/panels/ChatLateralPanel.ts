@@ -1,6 +1,5 @@
 import { getNonce } from "../getNonce";
-import { Uri, Webview, WebviewView, WebviewViewProvider, window } from "vscode";
-import { ApiResponse } from "../utils/types";
+import { languages, Uri, Webview, WebviewView, WebviewViewProvider, window, workspace } from "vscode";
 
 export class ChatLateralPanel implements WebviewViewProvider {
 
@@ -22,7 +21,7 @@ export class ChatLateralPanel implements WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         //  wwebview to panel
-        webviewView.webview.onDidReceiveMessage(async (data: {role: string, content: string}) => {
+        webviewView.webview.onDidReceiveMessage(async (data: {role: string, content: string, language?: string}) => {
             switch (data.role) {
                 case "onInfo": 
                     if (!data.content) {
@@ -41,6 +40,35 @@ export class ChatLateralPanel implements WebviewViewProvider {
                         return;
                     }
                     await this.queryLlm(data.content);
+                    break;
+                case "insertCode":
+                    if(!data.content) {return;}
+                    // commands.executeCommand('workbench.view.extension.llm-chat-lateral-view');
+
+                    const editor = window.activeTextEditor;
+
+                    if (editor) {
+                        // Insert text at current cursor position
+                        editor.edit((editBuilder: { insert: (arg0: any, arg1: string) => void; }) => {
+                            editBuilder.insert(editor.selection.active, data.content);
+                        });
+                    }
+                    else {
+                        // create a nenw file and insert there
+                        const workspacePath = workspace.rootPath; // Get the root workspace path
+                        if (workspacePath) {
+                            const uri = Uri.joinPath(Uri.file(workspacePath), 'scratch');
+                            
+                            workspace.fs.writeFile(uri, Buffer.from(data.content, 'utf8')).then(() => {
+                                workspace.openTextDocument(uri).then((document: any) => {
+                                    window.showTextDocument(document).then(() => {
+                                        // Set language mode for the new document
+                                        languages.setTextDocumentLanguage(document, data.language || 'plaintext');
+                                    });
+                                });
+                            });
+                        }
+                    }
                     break;
             }
         });

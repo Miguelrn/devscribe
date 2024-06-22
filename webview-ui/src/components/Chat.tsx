@@ -1,6 +1,6 @@
 import { Paper } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import { ChangeEvent, useEffect, useState, KeyboardEvent } from 'react';
+import { ChangeEvent, useEffect, useState, KeyboardEvent, useRef } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -26,6 +26,8 @@ export default function Chat() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [currentIconIndex, setCurrentIconIndex] = useState(0);
     const [input, setInput] = useState<string>('');
+    const chatRef = useRef<HTMLDivElement | null>(null);
+    const [isUserScrolling, setIsUserScrolling] = useState<boolean>(false);
 
     const printMsg = (data: {role: string, content: string, done: boolean}) => {
         switch (data.role) {
@@ -44,6 +46,7 @@ export default function Chat() {
                                 msg: (newItems[lastIndex].msg || '') + response
                             };
                         } else { // insert thhe first word in a new response
+                            setIsUserScrolling(false); // reset previous user scrolling
                             newItems.push({ variant: 'ia', msg: response });
                         }
 
@@ -90,6 +93,13 @@ export default function Chat() {
         };
     }, [isLoading]);
 
+    useEffect(() => {
+        if (chatRef.current && !isUserScrolling) {
+            // For example, change the background color
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [msgList, isUserScrolling])
+
     const handleInput = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setInput(event.target.value || '');
     };
@@ -116,9 +126,13 @@ export default function Chat() {
         setMsgList([])
     }
 
+    const handleWheel = () => {
+        setIsUserScrolling(true);
+    }
+
     return (
         <>
-            <Grid container className="h-[calc(100vh-6rem)] overflow-auto" direction="column" justifyContent={"flex-start"} alignItems={"center"}>
+            <Grid container className="h-[calc(100vh-6rem)] overflow-auto" direction="column" justifyContent={"flex-start"} alignItems={"center"} ref={chatRef} onWheel={handleWheel}>
                 {   
                     msgList.map((m, index) => (
                         <Grid xs={12} key={index}>
@@ -129,8 +143,11 @@ export default function Chat() {
                                     
                                     components={{
                                         code({children, className, ...props}) {
-                                            return <CodeBlock className={className || ''} {...props}>{String(children)}</CodeBlock>
-                                        }
+                                            return <CodeBlock className={className || ''} type={m.variant} {...props}>{String(children)}</CodeBlock>
+                                        },
+                                        p: ({ children }) => (
+                                            <span>{children}</span>
+                                        )
                                     }}
                                 ></ReactMarkdown>
                             </Paper>
