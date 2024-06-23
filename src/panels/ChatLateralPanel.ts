@@ -7,8 +7,11 @@ export class ChatLateralPanel implements WebviewViewProvider {
     _view?: WebviewView;
     private _isFocused: boolean = false;
     private context: {role: string, content: string}[] = [];
+    private config = workspace.getConfiguration('llm');
   
-    constructor(private readonly _extensionUri: Uri) {}
+    constructor(private readonly _extensionUri: Uri) {
+
+    }
 
     resolveWebviewView(webviewView: WebviewView): void | Thenable<void> {
         this._view = webviewView;
@@ -47,14 +50,12 @@ export class ChatLateralPanel implements WebviewViewProvider {
 
                     const editor = window.activeTextEditor;
 
-                    if (editor) {
-                        // Insert text at current cursor position
+                    if (editor) { // Insert text at current cursor position
                         editor.edit((editBuilder: { insert: (arg0: any, arg1: string) => void; }) => {
                             editBuilder.insert(editor.selection.active, data.content);
                         });
                     }
-                    else {
-                        // create a nenw file and insert there
+                    else { // create a nenw file and insert there
                         const workspacePath = workspace.rootPath; // Get the root workspace path
                         if (workspacePath) {
                             const uri = Uri.joinPath(Uri.file(workspacePath), 'scratch');
@@ -128,10 +129,13 @@ export class ChatLateralPanel implements WebviewViewProvider {
     }
 
     private async queryLlm(prompt: string) {
-        const endpoint = 'http://localhost:11434/api/chat';
+        const endpoint: string = this.config.get('url') || '';
+        const model: string = this.config.get('model') || '';
+        const token: string = this.config.get('token') || '';
+        // const endpoint = 'http://localhost:11434/api/chat';
         this.context.push({role: 'user', content: prompt});
         const body = {
-            model: 'codegemma',
+            model: model,
             stream: true,
             keep_alive: '60m',
             messages: this.context
@@ -140,7 +144,8 @@ export class ChatLateralPanel implements WebviewViewProvider {
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token // TODO what happen if null ?
                 },
                 body: JSON.stringify(body)
             });

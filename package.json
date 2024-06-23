@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onCommand:llm.someCommand"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -49,7 +50,27 @@
         "title": "Open Chat Lateral Panel"
       }
     ],
-    "menus": {}
+    "menus": {},
+    "configuration": {
+      "title": "My GPT",
+      "properties": {
+        "llm.url": {
+          "type": "string",
+          "default": "http://localhost:11434/api/chat",
+          "description": "url api endpoint where LLM is hosted"
+        },          
+        "llm.model": {
+          "type": "string", 
+          "default": "codegemma",
+          "description": "Name of the LLM model"
+        },
+        "llm.token": {
+          "type": "string",
+          "default": "",
+          "description": "bearer token, only if the api ennndpoint needs it!"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",

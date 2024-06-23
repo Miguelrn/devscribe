@@ -1,12 +1,19 @@
 botones code para copiar mover codigo al editor
-stream?
+
 
 cambiar de tab pesña alateral borra el historial?
-scroll cuando llegamos al final
+
 
 menu contextual en lugar del icono ??
 
-add fields on toop of chat for url model name etc
 
 add instructions for panel when  empty
-add loading icon with a new msg form while waiting for responses
+
+
+
+
+### CONFIG
+access to your vscode config `CTRL+Shift+P` looks for `Preferences: Open Settings (UI)`, filter by `llm`, there is 3 fields that can be configured
+* url, api endpoint of the LLM
+* model, Name of the model
+* token, bearer token, optional parameter
