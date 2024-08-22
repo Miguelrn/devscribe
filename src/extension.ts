@@ -18,27 +18,25 @@ export function activate(context: ExtensionContext) {
 
 	context.subscriptions.push(
 		commands.registerCommand('llm.chat', async () => {
-			const {activeTextEditor} = window;
+			await chatLLM();
+		})
+	);
 
-			if(!activeTextEditor){
-				window.showInformationMessage("no active selection");
-				return;
-			}
+	context.subscriptions.push(
+		commands.registerCommand('llm.explain', async () => {
+			await chatLLM(); // TODO: send system prompt
+		})
+	);
 
-			const text = activeTextEditor.document.getText(activeTextEditor.selection);
-			// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-view-sample/src/extension.ts
-			// https://github.com/microsoft/vscode-extension-samples/tree/main/helloworld-test-cli-sample
-			if(!chatLateralPanel.isFocused()){
-				// if the panel was not visible need to initialize wait a bit and then send msg (will recive nothing without this waiting)
-				commands.executeCommand('workbench.view.extension.llm-chat-lateral-view');
-				await setTimeout(() => {
-					sendMsg(text);
-				}, 1000);
-				
-			}
-			else {
-				sendMsg(text);
-			}
+	context.subscriptions.push(
+		commands.registerCommand('llm.refactor', async () => {
+			await chatLLM(); // TODO: send system prompt
+		})
+	);
+
+	context.subscriptions.push(
+		commands.registerCommand('llm.doc', async () => {
+			await chatLLM(); // TODO: send system prompt
 		})
 	);
 	
@@ -55,6 +53,29 @@ export function activate(context: ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
+const chatLLM = async () => {
+	const {activeTextEditor} = window;
+
+	if(!activeTextEditor){
+		window.showInformationMessage("no active selection");
+		return;
+	}
+
+	const text = activeTextEditor.document.getText(activeTextEditor.selection);
+	// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-view-sample/src/extension.ts
+	// https://github.com/microsoft/vscode-extension-samples/tree/main/helloworld-test-cli-sample
+	if(!chatLateralPanel.isFocused()){
+		// if the panel was not visible need to initialize wait a bit and then send msg (will recive nothing without this waiting)
+		commands.executeCommand('workbench.view.extension.llm-chat-lateral-view');
+		await setTimeout(() => {
+			sendMsg(text);
+		}, 1000);
+		
+	}
+	else {
+		sendMsg(text);
+	}
+};
 
 const getSelection = (event: TextEditorSelectionChangeEvent, context: ExtensionContext) => {
 	const editor = event.textEditor;

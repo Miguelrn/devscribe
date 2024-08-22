@@ -48,9 +48,39 @@
       {
         "command": "extension.openChatLateralPanel",
         "title": "Open Chat Lateral Panel"
+      },
+      {
+        "command": "llm.explain",
+        "title": "LLM: expain code",
+        "category": "Helper"
+      },
+      {
+        "command": "llm.refactor",
+        "title": "LLM: refactor code",
+        "category": "Helper"
+      },
+      {
+        "command": "llm.doc",
+        "title": "LLM: generate documentation",
+        "category": "Helper"
       }
     ],
-    "menus": {},
+    "menus": {
+      "editor/context": [
+        {
+          "command": "llm.explain",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llm.refactor",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llm.doc",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
     "configuration": {
       "title": "My GPT",
       "properties": {
