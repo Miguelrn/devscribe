@@ -18,42 +18,43 @@ export function activate(context: ExtensionContext) {
 
 	context.subscriptions.push(
 		commands.registerCommand('llm.chat', async () => {
-			await chatLLM();
+			await chatLLM('You are a helpful assistant.');
 		})
 	);
 
 	context.subscriptions.push(
 		commands.registerCommand('llm.explain', async () => {
-			await chatLLM(); // TODO: send system prompt
+			await chatLLM(`User will provide a code snippet. Your task is to explain the meaning of the code in detail. Focus on describing what the code is doing, how it works, and its purpose. If possible, suggest improvements or refactors, but the primary goal is to provide a clear and concise explanation of the code\'s functionality.`); 
 		})
 	);
 
 	context.subscriptions.push(
 		commands.registerCommand('llm.refactor', async () => {
-			await chatLLM(); // TODO: send system prompt
+			await chatLLM(`User will provide a code snippet. Your task is to suggest possible refactoring for the top or most external function in the snippet to improve its readability, performance, or maintainability. Focus on this primary function rather than internal or nested functions. If no significant refactor is needed, suggest potential improvements or optimizations.`); 
 		})
 	);
 
 	context.subscriptions.push(
 		commands.registerCommand('llm.doc', async () => {
-			await chatLLM(); // TODO: send system prompt
+			await chatLLM(`User will provide a code snippet containing one or more functions. Your task is to create inline documentation for only the top-level or most external function. Focus on describing the function's purpose, parameters, and return values. Add brief inline comments only if necessary to explain complex parts of the code. Follow the documentation style of the language used.`); 
 		})
 	);
 	
-	context.subscriptions.push(window.onDidChangeTextEditorSelection((e) => getSelection(e,context)));
+	// display icon
+	// context.subscriptions.push(window.onDidChangeTextEditorSelection((e) => getSelection(e,context)));
 	context.subscriptions.push({
-        dispose: () => {
-            if (decorationType) {
-                decorationType.dispose();
-            }
-        }
+       dispose: () => {
+           if (decorationType) {
+               decorationType.dispose();
+           }
+       }
     });
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
-const chatLLM = async () => {
+const chatLLM = async (systemPrompt: string) => {
 	const {activeTextEditor} = window;
 
 	if(!activeTextEditor){
@@ -68,12 +69,12 @@ const chatLLM = async () => {
 		// if the panel was not visible need to initialize wait a bit and then send msg (will recive nothing without this waiting)
 		commands.executeCommand('workbench.view.extension.llm-chat-lateral-view');
 		await setTimeout(() => {
-			sendMsg(text);
+			sendMsg(text, systemPrompt);
 		}, 1000);
 		
 	}
 	else {
-		sendMsg(text);
+		sendMsg(text, systemPrompt);
 	}
 };
 
@@ -121,12 +122,13 @@ const getSelection = (event: TextEditorSelectionChangeEvent, context: ExtensionC
 
 };
 
-const sendMsg = (text: string) => {
+const sendMsg = (text: string, system: string) => {
 	const language = window.activeTextEditor?.document.languageId || 'plain';
 	chatLateralPanel.sendDataToWebview({
 		role: 'user',
-		content: "Explain:\n```" + language + "\n" + text + "\n```",
-		done: true
+		content: "```" + language + "\n" + text + "\n```",
+		done: true,
+		system: system
 	});
 };
 

@@ -89,11 +89,11 @@ export class ChatLateralPanel implements WebviewViewProvider {
         return this._isFocused;
     }
 
-    public sendDataToWebview(data: {role: string, content: string, done: boolean}) {
+    public sendDataToWebview(data: {role: string, content: string, done: boolean, system?: string}) {
 		if (this._view) {
 			this._view.show?.(true); 
 			this._view.webview.postMessage(data);
-            this.queryLlm(`Explain the following code: \n ${data.content}`);
+            this.queryLlm(data.content, data.system);
 		}
 	}
 
@@ -128,7 +128,21 @@ export class ChatLateralPanel implements WebviewViewProvider {
         `;
     }
 
-    private async queryLlm(prompt: string) {
+    private async queryLlm(userPrompt: string, systemPrompt: string = 'You are a helpful assistant.') {
+
+        const TEMPLATE = `{{ if .System }}system
+                            {{ .System }}
+                            {{ end }}{{ if .Prompt }}user
+                            {{ .Prompt }}
+                            {{ end }}assistant`;
+
+        const prompt = TEMPLATE.replace('{{ if .System }}', systemPrompt ? 'system\n' + systemPrompt + '\n' : '')
+                                .replace('{{ end }}', systemPrompt ? '' : '')
+                                .replace('{{ if .Prompt }}', userPrompt ? 'user\n' + userPrompt + '\n' : '')
+                                .replace('{{ end }}', userPrompt ? '' : '');
+
+        console.log(prompt);
+
         const endpoint: string = this.config.get('url') || '';
         const model: string = this.config.get('model') || '';
         const token: string = this.config.get('token') || '';

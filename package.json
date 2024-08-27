@@ -51,7 +51,7 @@
       },
       {
         "command": "llm.explain",
-        "title": "LLM: expain code",
+        "title": "LLM: explain code",
         "category": "Helper"
       },
       {
