@@ -27,5 +27,8 @@ code.inline-code {
 
 textarea {
     background-color: #1F2937;
+}
 
+.loading-icon {
+    color: #93C5FD
 }

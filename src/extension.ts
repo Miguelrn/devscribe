@@ -40,6 +40,11 @@ export function activate(context: ExtensionContext) {
 		})
 	);
 	
+	context.subscriptions.push(
+		commands.registerCommand('llm.completion', async () => {
+			await chatLLM(`User will provide a partially written code snippet. Your task is to analyze the snippet and, if it is incomplete, provide the necessary code to complete it. If the code is already complete and no additional lines or logic are needed, return nothing. Focus on making sure the code is syntactically correct and logically coherent. Use the conventions and style appropriate to the programming language of the provided code snippet.`); 
+		})
+	);
 	// display icon
 	// context.subscriptions.push(window.onDidChangeTextEditorSelection((e) => getSelection(e,context)));
 	context.subscriptions.push({

@@ -1,14 +1,7 @@
-botones code para copiar mover codigo al editor
 
 
 cambiar de tab pesña alateral borra el historial?
-
-
-menu contextual en lugar del icono ??
-
-
 add instructions for panel when  empty
-
 
 
 

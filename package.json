@@ -51,17 +51,22 @@
       },
       {
         "command": "llm.explain",
-        "title": "LLM: explain code",
+        "title": "LLM: Explain code",
         "category": "Helper"
       },
       {
         "command": "llm.refactor",
-        "title": "LLM: refactor code",
+        "title": "LLM: Refactor code",
         "category": "Helper"
       },
       {
         "command": "llm.doc",
-        "title": "LLM: generate documentation",
+        "title": "LLM: Generate documentation",
+        "category": "Helper"
+      },
+      {
+        "command": "llm.completion",
+        "title": "LLM: Complete code",
         "category": "Helper"
       }
     ],
@@ -77,6 +82,10 @@
         },
         {
           "command": "llm.doc",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llm.completion",
           "when": "editorHasSelection"
         }
       ]

@@ -43,40 +43,34 @@ export const CodeBlock = ({className, type,  children, ...props }: {className: s
   }
 
   return (
-    <div>
-        {
-            language ? (
-                <>
 
-                <div className={'flex justify-between align-bottom'}> 
-                    {language}
-                    {type === 'ia' && <div className="flex space-x-2">
-                            <Tooltip placement="top" title="Copied!" open={tooltipOpen} arrow classes={{ tooltip: 'bg-green-400 text-white px-2 py-1 rounded-md shadow-md',}}>
-                                <ContentCopyIcon className='cursor-pointer w-5 h-5 icon-white' onClick={copyToClipboard} />
-                            </Tooltip>
-                            <StartIcon  className='cursor-pointer w-5 h-5 icon-white' onClick={handleCopyCode} />
-                        </div>
-                    }
+    language ? (
+      <>
+        <div className={'flex justify-between align-bottom'}> 
+            {language}
+            {type === 'ia' && <div className="flex space-x-2">
+                    <Tooltip placement="top" title="Copied!" open={tooltipOpen} arrow classes={{ tooltip: 'bg-green-400 text-white px-2 py-1 rounded-md shadow-md',}}>
+                        <ContentCopyIcon className='cursor-pointer w-5 h-5 icon-white' onClick={copyToClipboard} />
+                    </Tooltip>
+                    <StartIcon  className='cursor-pointer w-5 h-5 icon-white' onClick={handleCopyCode} />
                 </div>
-                <SyntaxHighlighter
-                    {...props}
-                    PreTag="div"
-                    children={String(children).replace(/\n$/, '')} 
-                    language={language}
-                    style={dark}
-                    wrapLongLines
-                    showLineNumbers
-                />
-                </>
-            ):
-            (
-                <code className='undefined' {...props}>
-                    {children}
-                </code>
-            )
-        }    
-        
-
-    </div>
+            }
+        </div>
+        <SyntaxHighlighter
+            PreTag="div"                   
+            children={String(children).replace(/\n$/, '')} 
+            language={language}
+            style={dark}
+            wrapLongLines
+            showLineNumbers
+            {...props}
+        />
+        </>
+    ):
+    (
+        <code className={className} {...props}>
+            {children}
+        </code>
+    )
   );
 };
